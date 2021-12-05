@@ -23,10 +23,11 @@ namespace Day4
             }
 
             string line = sr.ReadLine();
-             line = sr.ReadLine();
+            line = sr.ReadLine();
 
 
             List<Bingo> Bingos = new List<Bingo>();
+            int index = 0;
             while (line != null)
             {
                 List<string> BingoRows = new List<string>();
@@ -38,36 +39,48 @@ namespace Day4
 
                     line = sr.ReadLine();
                 }
-                Bingos.Add(new Bingo(BingoRows));
+                Bingos.Add(new Bingo(BingoRows, index));
+                index++;
+
 
                 line = sr.ReadLine();
             }
+
             bool checker = false;
-            for(int n = 0; n < numbers.Count; n++)
+            int boardIndex = 0;
+            int lastNumber = 0;
+            for (int n = 0; n < numbers.Count; n++)
             {
+                checker = false;
                 foreach (Bingo b in Bingos)
                 {
                     checker = b.MarkNumber(numbers[n]);
-                    if (checker)
+                    if (checker && !b.HasBoardFinished)
                     {
-                        Console.WriteLine("We found solution:");
-                        b.PrintBoard();
-                        b.sumOfAllNonMarked(numbers[n]);
-                        break;
+                        Console.WriteLine("Bingo " + b.Index + " has solution at "+ n +" number:" +numbers[n] );
+                        boardIndex = b.Index;
+                        lastNumber = numbers[n];
+                        b.HasBoardFinished = true;
                     }
                 }
-                if (checker) break;
+                if(Bingos.Where(u => u.HasBoardFinished).Count() == Bingos.Count)break;
             }
+            Console.WriteLine("Last board is " + Bingos[boardIndex].Index);
+            Bingos[boardIndex].PrintBoard();
+            Bingos[boardIndex].sumOfAllNonMarked(lastNumber);
             Console.WriteLine("End of program");
 
             Console.ReadKey();
 
         }
 
+
+
         public class Bingo
         {
-            public Bingo(List<string> BingoRows)
+            public Bingo(List<string> BingoRows, int index)
             {
+                Index = index;
                 Board = new List<List<int>>();
                 Marked = new List<List<bool>>();
                 List<bool> MarkedVals = new List<bool>() { false, false, false, false, false };
@@ -89,6 +102,8 @@ namespace Day4
             public Tuple<int, bool> Values;
             public List<List<int>> Board;
             public List<List<bool>> Marked;
+            public int Index;
+            public bool HasBoardFinished = false;
 
             public bool MarkNumber(int value)
             {
@@ -116,7 +131,8 @@ namespace Day4
                         Marked[i][1] &&
                         Marked[i][2] &&
                         Marked[i][3] &&
-                        Marked[i][4] )
+                        Marked[i][4])
+                        //HasBoardFinished = true;
                         return true;
                     if (
                         Marked[0][i] &&
@@ -124,6 +140,7 @@ namespace Day4
                         Marked[2][i] &&
                         Marked[3][i] &&
                         Marked[4][i])
+                        //HasBoardFinished = true;
                         return true;
                 }
                 return false;
@@ -140,7 +157,6 @@ namespace Day4
                     }
                 }
                 Console.WriteLine("Sum is " + sum + " x " + currentVal + " = " + sum*currentVal);
-                //return sum;
             }
             public void PrintBoard()
             {
@@ -164,9 +180,24 @@ namespace Day4
 
         }
 
-        public class BingoCreator
+        private static void FirstPartSolution(List<int> numbers, List<Bingo> Bingos)
         {
-
+            bool checker = false;
+            for (int n = 0; n < numbers.Count; n++)
+            {
+                foreach (Bingo b in Bingos)
+                {
+                    checker = b.MarkNumber(numbers[n]);
+                    if (checker)
+                    {
+                        Console.WriteLine("We found solution:");
+                        b.PrintBoard();
+                        b.sumOfAllNonMarked(numbers[n]);
+                        break;
+                    }
+                }
+                if (checker) break;
+            }
         }
     }
 }
