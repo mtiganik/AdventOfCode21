@@ -11,6 +11,8 @@ namespace Day3
     {
         static void Main(string[] args)
         {
+            bool CO2Check = false;
+
             StreamReader sr = new StreamReader("input.txt");
             string line = sr.ReadLine();
             List<int[]> input = new List<int[]>();
@@ -29,29 +31,30 @@ namespace Day3
             int[] lineSums = GetLineSums(input);
 
             // for O2 last index goes 1, for CO2 it goes 1
-            List<int[]> discard = GetDiscardedList(input, 0, 0);
-            for(int m= 1; m<input[0].Length; m++)
+            List<int[]> discard = new List<int[]>();
+            if (CO2Check)
+            {
+                GetDiscardedList(input, 0, 0);
+            }
+            else
+            {
+                GetDiscardedList(input, 0, 1);
+            }
+
+            for (int m= 1; m<input[0].Length; m++)
             {
                 if (discard.Count == 1) break;
-                for (int i = 0; i < discard.Count; i++)
-                {
-                    for (int j = 0; j < discard[0].Length; j++)
-                    {
-                        Console.Write(discard[i][j]);
-                    }
-                    Console.WriteLine();
-                }
-                Console.WriteLine("Discard length: " + discard.Count());
 
                 lineSums = GetLineSums(discard);
 
                 int valuetoCheck;
-                //for CO2
-                if (lineSums[m] == 0) valuetoCheck = 1;
-                else valuetoCheck = 0;
-                //for O2
-                //if (lineSums[m] == 1) valuetoCheck = 1;
-                //else valuetoCheck = 0;
+                if (CO2Check)
+                {
+                    if (lineSums[m] == 0) valuetoCheck = 1;
+                    else valuetoCheck = 0;
+
+                }
+                else valuetoCheck = lineSums[m];
 
 
                 discard = GetDiscardedList(discard, m, valuetoCheck);
@@ -104,7 +107,6 @@ namespace Day3
 
                 }
             }
-            //Console.WriteLine("LineSum: zeros: " + nulls + " ones:" + ones);
             return lineSums;
 
         }
